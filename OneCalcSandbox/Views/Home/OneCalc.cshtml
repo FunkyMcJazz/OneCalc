@@ -1,0 +1,260 @@
+﻿@{
+    ViewBag.Title = "OneCalc";
+}
+<script src="http://handsontable.com/dist/handsontable.full.js"></script>
+<link rel="stylesheet" media="screen" href="//handsontable.com/dist/handsontable.full.css">
+
+
+<script src="http://handsontable.github.io/handsontable-ruleJS/lib/jquery/jquery-1.10.2.js"></script>
+<script src="http://handsontable.github.io/handsontable-ruleJS/lib/handsontable/handsontable.full.js"></script>
+
+<link rel="stylesheet" media="screen" href="http://handsontable.github.io/handsontable-ruleJS/lib/handsontable/handsontable.full.css">
+<script src="http://handsontable.github.io/handsontable-ruleJS/lib/RuleJS/lib/lodash/lodash.js"></script>
+<script src="http://handsontable.github.io/handsontable-ruleJS/lib/RuleJS/lib/underscore.string/underscore.string.js"></script>
+<script src="http://handsontable.github.io/handsontable-ruleJS/lib/RuleJS/lib/moment/moment.js"></script>
+<script src="http://handsontable.github.io/handsontable-ruleJS/lib/RuleJS/lib/numeral/numeral.js"></script>
+<script src="http://handsontable.github.io/handsontable-ruleJS/lib/RuleJS/lib/numericjs/numeric.js"></script>
+<script src="http://handsontable.github.io/handsontable-ruleJS/lib/RuleJS/lib/js-md5/md5.js"></script>
+<script src="http://handsontable.github.io/handsontable-ruleJS/lib/RuleJS/lib/jstat/jstat.js"></script>
+<script src="http://handsontable.github.io/handsontable-ruleJS/lib/RuleJS/lib/formulajs/formula.js"></script>
+<script src="http://handsontable.github.io/handsontable-ruleJS/lib/RuleJS/js/parser.js"></script>
+<script src="http://handsontable.github.io/handsontable-ruleJS/lib/RuleJS/js/ruleJS.js"></script>
+<script src="http://handsontable.github.io/handsontable-ruleJS/lib/handsontable/handsontable.formula.js"></script>
+
+
+<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+<h2>Skapa operativ kalkyl</h2>
+
+
+
+<div class="container">
+    <form role="form">
+        <div class="form-group">
+            <label for="inputTypeOfOK">Välj typ av operativ kalkyl:</label>
+            <select class="form-control" id="inputTypeOfOK">
+                <option>Värmecentral</option>
+                <option>Vindkraft</option>
+                <option>Elnät</option>
+            </select>
+        </div>
+    </form>
+</div>
+<div class="form-group">
+    <label for="years">Hur många år täcker kalkylen:</label>
+    <input type="number" class="form-control" id="years">
+</div>
+
+<div class="container">
+    <button type="button" class="btn btn-primary" onclick="return skapaKalkyl()">Skapa kalkyl</button>
+</div>
+<h3>Operativ Kalkyl</h3>
+<div id="hottable1"></div>
+<h3>Finansiell Kalkyl</h3>
+<div id="hottable2"></div>
+    <script>
+        
+
+        function skapaKalkyl()
+        {
+            //Generera års-array
+            
+            
+
+            var date = new Date();
+            var yearsArray = new Array("", "År", date.getFullYear());
+            var nOYears = document.getElementById('years').value;
+            
+            for (var loopCounter = 0; loopCounter < (nOYears - 1); loopCounter++)
+            {
+                yearsArray[(loopCounter + 3)] = '=SUM(C6,' + (loopCounter + 1) + ')';
+            }
+
+            //Bygger upp de 10 bas kolumnerna för datan i operativa kalkylen.
+            var columnsObjectArray;
+            var typeOfOK = document.getElementById("inputTypeOfOK").value;
+            if(typeOfOK == "Värmecentral")
+            {
+                 columnsObjectArray = [
+                        {
+                            data: 'A',
+                            readOnly: true
+                        },
+                        {
+                            data: 'B',
+                            readOnly: true
+                        },
+                        {
+                            data: 'C',
+                        },
+                        {
+                            data: 'D',
+                        },
+                        {
+                            data: 'E',
+                        },
+                        {
+                            data: 'F',
+                        },
+                        {
+                            data: 'G',
+                        },
+                        {
+                            data: 'H',
+                        },
+                        {
+                            data: 'I',
+                        },
+                        {
+                            data: 'J',
+                        },
+                        {
+                            data: 'K',
+                        },
+                        {
+                            data: 'L',
+                        }
+
+                ];
+                 var alphabetUpperCase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                //Om kalkylen överstiger 10 år så adderas ytterliggare kolumner.
+                if (nOYears > 10)
+                {
+                    
+                    for(i = 10; i < nOYears; i++ )
+                    {
+                        columnsObjectArray.push(columnSymbol = { data: alphabetUpperCase.charAt(i + 2) })
+
+                    }
+                }
+
+                //Skapa ett object med dynamiskt tillagda properties beroende på antalet kolumner.
+                var yearsRowObject = {};
+                var nOColumns = Object.keys(columnsObjectArray).length;
+                var forCounter = 0;
+                for (i = 0; i < nOColumns; i++)
+                {
+                    yearsRowObject[alphabetUpperCase.charAt(i)] = yearsArray[i];
+                }
+                
+                var hot1Data = [
+                    { A: "Värmecentral, expansion", B: "", C: "", D: "", E: "", F: "", G: "", H: "", I: "", J: "", K: "", L: "" },
+                    { A: "10", B: "" },
+                    { A: "" },
+                    { A: "Antagen inflation", B: "", C: "2%" },
+                    { A: "" },
+                    yearsRowObject,
+                    { A: "Intäkter" },
+                    { A: "Värmeförsäljning, netto", B: "MWh/år" },
+                    { A: "" },
+                    { A: "Fast pris", B: "Kkr/år" },
+                    { A: "Energipris", B: "kr/MWh" },
+                    { A: "Engångsintäkt/initialpris", B: "Kkr/år" },
+                    { A: "Summa intäkter", B: "Kkr/år" },
+                    { A: "Specifikt per såld MWh", B: "kr/MWh" },
+                    { A: "" },
+                    { A: "Kostnader" },
+                    { A: "Kulvertförlust", B: "%" },
+                    { A: "Produktion", B: "MWh/år" },
+                    { A: "Andel olja", B: "%" },
+                    { A: "Andel gas", B: "%" },
+                    { A: "Andel elpanna", B: "%" },
+                    { A: "Andel biobränsle 1", B: "%" },
+                    { A: "Andel biobränsle 2", B: "%" },
+                    { A: "Andel värmepump", B: "%" },
+                    { A: "Verkn.grad olja", B: "%" },
+                    { A: "Verkn.grad gas", B: "%" },
+                    { A: "Verkn.grad elpanna", B: "%" },
+                    { A: "Verkn.grad biobränsle 1", B: "%" },
+                    { A: "Verkn.grad biobränsle 2", B: "%" },
+                    { A: "Värmefaktor värmepump", B: "Enhetslös" },
+                    { A: "Olja (brutto)", B: "MWh/år" },
+                    { A: "Gas (brutto)", B: "MWh/år" },
+                    { A: "Elpanna (brutto)", B: "MWh/år" },
+                    { A: "Biobränsle 1 (brutto)", B: "MWh/år" },
+                    { A: "Biobränsle 2 (brutto)", B: "MWh/år" },
+                    { A: "Värmepump (brutto)", B: "MWh/år" },
+                    { A: "Summa bränsleförbr.", B: "MWh/år" },
+                    { A: "Bränslekostnader" },
+                    { A: "Bränslekostnad olja", B: "kr/MWh" },
+                    { A: "Bränslekostnad gas", B: "kr/MWh" },
+                    { A: "Bränslekostnad el, elpanna", B: "kr/MWh" },
+                    { A: "Bränslekostn. biobränsle 1", B: "kr/MWh" },
+                    { A: "Bränslekostn. biobränsle 2", B: "kr/MWh" },
+                    { A: "Bränslekostnad el, vä-pump", B: "kr/MWh" },
+                    { A: "Summa bränslekostnad", B: "Kkr/år" },
+                    { A: "Specifikt per såld MWh", B: "kr/MWh" },
+                    { A: "" },
+                    { A: "Övriga kostnader" },
+                    { A: "DUAM, rörlig", B: "kr/MWh" },
+                    { A: "DUAM fast", B: "Kkr/år" },
+                    { A: "Kundservice", B: "Kkr/år" },
+                    { A: "Summa övr kostnader", B: "Kkr/år" },
+                    { A: "Specifikt per såld MWh", B: "kr/MWh" },
+                    { A: "" },
+                    { A: "EBITDA(TB)", B: "Kkr/år" },
+                    { A: "Specifikt per såld MWh", B: "kr/MWh" },
+                    { A: "EBITDA-marginal" },
+                    { A: "" },
+                    { A: "Investeringar" },
+                    { A: "År" },
+                    { A: "Invest, diverse", B: "Kkr/år" },
+                    { A: "Invest, prod anl", B: "Kkr/år" },
+                    { A: "Invest, kulvert", B: "Kkr/år" },
+                    { A: "Summa investering, Kkr", B: "Kkr/år" }
+                ];
+
+                //Table#1, Operativ Kalkyl
+                var container = document.getElementById('hottable1');
+                 hot1 = new Handsontable(container, {
+                    data: hot1Data,
+                    minSpareRows: 1,
+                    rowHeaders: true,
+                    colHeaders: true,
+                    contextMenu: true,
+                    formulas: true,
+                    columns: columnsObjectArray
+                });
+                
+                
+                var hot2Data = [
+                        { A: "Hej", B: "Tja", C: '20' },
+                        { A: "TestA", B: "TestB", C: "=SUM(C1, " + hot1Data[5].C + ")", D: "Hej" }
+
+                    ];
+                
+                //Table#2, Finansiell Kalkyl
+                var container2 = document.getElementById("hottable2");
+                var hot2 = new Handsontable(container2, {
+                    data: hot2Data,
+                    minSpareRows: 1,
+                    rowHeaders: true,
+                    colHeaders: true,
+                    contextMenu: true,
+                    formulas: true,
+                    columns: columnsObjectArray
+                });
+                
+            }
+            //hot2.setDataAtRowProp(0, "A", "Tjenare");
+            hot1.addHook('afterChange', OnCellChangeHot1());
+            //document.addEventListener('afterChange', OnCellChangeHot1());
+            return true;
+        }
+
+        function OnCellChangeHot1()
+        {
+            //window.alert("FooBar");
+            hot1.addHook("afterChange", OnCellChangeHot1());
+            //hot2.setDataAtRowProp(1, "A", "Tjenare");
+            //hot2.render();
+            //hot2Data[2].C = '=SUM(C1, ' + hot1Data[5].C + ')';
+        }
+        //Genererar datan till värmecentral tabellen.
+
+        
+        
+
+    </script>
